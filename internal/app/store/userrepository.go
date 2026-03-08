@@ -18,6 +18,12 @@ func (r *UserRepository) CreateUser(u *model.User) (*model.User, error) {
 	return u, nil
 }
 
-func (r *UserRepository) findByEmail(email string) (*model.User, error) {
-	return nil, nil
+func (r *UserRepository) FindByEmail(email string) (*model.User, error) {
+	user := model.User{}
+	err := r.store.db.QueryRow("select * from users where email = $1", email).
+		Scan(&user.ID, &user.Email, &user.EncryptedPassword) // sca разложит значения в структуру
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
 }
