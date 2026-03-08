@@ -1,10 +1,15 @@
 package store
 
-import "database/sql"
+import (
+	"database/sql"
+
+	_ "github.com/lib/pq"
+)
 
 type Store struct {
-	config *Config
-	db     sql.DB
+	config         *Config
+	db             *sql.DB
+	userRepository *UserRepository
 }
 
 func New(config *Config) *Store {
@@ -28,4 +33,16 @@ func (s *Store) Open() error {
 
 func (s *Store) Close() {
 	s.db.Close()
+}
+
+// функция -getter для репозитория. Реализация инкапсуляции
+// либо возвращает готовое, либо создает репозиторий -singleton
+func (s *Store) User() *UserRepository {
+	if s.userRepository != nil {
+		return s.userRepository
+	}
+	s.userRepository = &UserRepository{
+		store: s,
+	}
+	return s.userRepository
 }
