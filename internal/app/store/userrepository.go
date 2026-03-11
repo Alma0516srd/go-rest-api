@@ -8,6 +8,12 @@ type UserRepository struct {
 
 // scan мапит возвращаемое значение в переменную
 func (r *UserRepository) CreateUser(u *model.User) (*model.User, error) {
+
+	err2 := u.BeforeCreate()
+	if err2 != nil {
+		return nil, err2
+	}
+
 	err := r.store.db.QueryRow(
 		"insert into users(email, encrypted_password) "+
 			"values ($1, $2) returning id", u.Email, u.EncryptedPassword).Scan(&u.ID)

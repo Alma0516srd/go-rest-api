@@ -18,11 +18,9 @@ func TestUserRepository_CreateUser(t *testing.T) {
 	}
 
 	testStore, tearDown := store.TestStore(t, databaseUrl)
-	defer tearDown("users") //отложенный вызов фукнции. Выполнится последней после всех операций в функции
+	defer tearDown("users") // Отложенный вызов функции. Выполнится последней после всех операций в функции
 
-	user, err := testStore.User().CreateUser(&model.User{
-		Email: "user@example.org",
-	})
+	user, err := testStore.User().CreateUser(model.TestUser(t))
 
 	assert.NoError(t, err)
 	assert.NotNil(t, user)
