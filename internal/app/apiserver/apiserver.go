@@ -43,7 +43,7 @@ func (s *Apiserver) Start() error {
 
 func (s *Apiserver) configureStore() error {
 	st := store.New(s.config.Store)
-	err := st.Open()
+	err := st.Open(s.config.Store.DatabaseURL)
 	if err != nil {
 		return err
 	}

@@ -1,32 +1,28 @@
 package store
 
 import (
-	"fmt"
+	"database/sql"
 	"strings"
 	"testing"
 )
 
 // тестовая функция. принимает строку подключения и возвращает тестовое хранилище
 // funcв в аргументах - этоcallback функция дл очистки таблиц
-func TestStore(t *testing.T, databaseUrl string) (*Store, func(...string)) {
+func TestDB(t *testing.T, databaseUrl string) (*sql.DB, func(...string)) {
 	t.Helper() // this is test-method
-	config := NEwConfig()
-	config.DatabaseUrl = databaseUrl
-	store := New(config)
-	err := store.Open()
+	db, err := sql.Open("postgres", databaseUrl)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	return store, func(tables ...string) {
+	err = db.Ping()
+	if err != nil {
+		t.Fatal(err)
+	}
+	return db, func(tables ...string) {
 		if len(tables) > 0 {
-			_, err2 := store.db.Exec(fmt.Sprintf("TRUNCATE %s CASCADE",
-				strings.Join(tables, ",")))
-			if err2 != nil {
-				t.Fatal(err2)
-			}
+			db.Exec("TRUNCATE %s CASCADE ", strings.Join(tables, " "))
 		}
-
-		store.Close()
+		db.Close()
 	}
 }

@@ -14,11 +14,14 @@ import (
 func TestUserRepository_CreateUser(t *testing.T) {
 	databaseUrl := os.Getenv("DATABASE_URL") // read env vars
 	if databaseUrl == "" {
-		databaseUrl = "host=localhost dbname=restapi_test sslmode=disable"
+		databaseUrl = "host=localhost port=5435 dbname=restapi_dev user=postgres password=postgres sslmode=disable"
 	}
 
-	testStore, tearDown := store.TestStore(t, databaseUrl)
+	_, tearDown := store.TestDB(t, databaseUrl)
 	defer tearDown("users") // Отложенный вызов функции. Выполнится последней после всех операций в функции
+
+	testStore := store.New(&store.Config{DatabaseURL: databaseUrl})
+	testStore.Open(databaseUrl)
 
 	user, err := testStore.User().CreateUser(model.TestUser(t))
 
@@ -29,11 +32,14 @@ func TestUserRepository_CreateUser(t *testing.T) {
 func TestUserRepository_findByEmail(t *testing.T) {
 	databaseUrl := os.Getenv("DATABASE_URL")
 	if databaseUrl == "" {
-		databaseUrl = "host=localhost dbname=restapi_test sslmode=disable"
+		databaseUrl = "host=localhost port=5435 dbname=restapi_dev user=postgres password=postgres sslmode=disable"
 	}
 
-	testStore, tearDown := store.TestStore(t, databaseUrl)
+	_, tearDown := store.TestDB(t, databaseUrl)
 	defer tearDown("users") //отложенный вызов фукнции. Выполнится последней после всех операций в функции
+
+	testStore := store.New(&store.Config{DatabaseURL: databaseUrl})
+	testStore.Open(databaseUrl)
 
 	email := "user@example.org"
 	_, err := testStore.User().FindByEmail(email)
